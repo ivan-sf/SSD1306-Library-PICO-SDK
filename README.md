@@ -5,4 +5,4 @@
 </div>
 
 ## Descrição da Biblioteca
-Esta biblioteca foi desenvolvida para um Display OLED SSD1306 para Raspberry Pi Pico, utilizando o PICO-SDK.
+Esta biblioteca foi desenvolvida para um Display OLED SSD1306 para RP2040, utilizando o PICO-SDK. Para isso, foi utilizada a plataforma de ensino baseada em tecnologia aberta BitDogLab.
