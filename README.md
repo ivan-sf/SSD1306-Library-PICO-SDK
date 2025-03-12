@@ -10,7 +10,3 @@ Esta biblioteca foi desenvolvida para um Display OLED SSD1306 para RP2040, utili
 <div align = "center">
     <img src="https://github.com/user-attachments/assets/17d56731-aa0e-4e26-ae65-f6f476a55f2b" alt="BDL1" style="width:25%;"/> <img src="https://github.com/user-attachments/assets/bcf95a15-ca86-45f4-aeb4-2b736a7ed5b3" alt="BDL2" style="width:25%;">
 </div>
-
-<div align = "center">
-    <img src="https://github.com/user-attachments/assets/fd788b98-f885-4c46-8513-bd98f4dff2f0" alt="BDL2" style="width:25%;"/> <img src="https://github.com/user-attachments/assets/3c3e0725-eed7-4c05-8759-114885429365" alt="BDL2" style="width:25%;"/>
-</div>
