@@ -28,9 +28,3 @@ Antes de usar a biblioteca, certifique-se de ter o SDK do Raspberry Pi Pico inst
 - `stdint.h`, `stdlib.h`, `string.h`
 
 ---
-
-## 🚀 Instalação
-
-1. Clone este repositório:
-   ```sh
-   git clone https://github.com/seu-usuario/seu-repositorio.git
