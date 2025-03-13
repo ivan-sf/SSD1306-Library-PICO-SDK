@@ -10,6 +10,8 @@ Esta biblioteca foi desenvolvida para um Display OLED SSD1306, em RP2040, via pr
     <img src="https://github.com/user-attachments/assets/17d56731-aa0e-4e26-ae65-f6f476a55f2b" alt="BDL1" style="width:25%;"/> <img src="https://github.com/user-attachments/assets/bcf95a15-ca86-45f4-aeb4-2b736a7ed5b3" alt="BDL2" style="width:25%;">
 </div>
 
+---
+
 ## Recursos
 
 - Inicialização e configuração do display SSD1306;
@@ -56,10 +58,15 @@ Antes de usar a biblioteca, certifique-se de ter o SDK do Raspberry Pi Pico inst
 
    SSD1306_Init();
    ```
+
+---
+   
 ## Exemplo
 Veja o arquivo "SSD1306_Exemplo.c", no qual há testes para cada função separadamente e, além disso, uma sequência de uso de funções em conjunto, tanto para as formas geométricas,
 quanto para as de exibição de texto. Note que o buffer **ssd** é utilizado em todas as funções (exceto **SSD1306_Init**) e a estrutura de renderização **FrameArea** apenas nas funções de controle de atualização do display
 (**SSD1306_Render** e **SSD1306_Clear**).
+
+---
 
 ## Considerações Finais
 Embora essa biblioteca considera o display presente na BitDogLab por padrão, pode-se facilmente adaptá-la para um display de outro tamanho ou que tenha outro endereço I2C, como o 0x7A. Para isso, modifique
