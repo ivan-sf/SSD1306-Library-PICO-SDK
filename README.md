@@ -59,6 +59,34 @@ Antes de usar a biblioteca, certifique-se de ter o SDK do Raspberry Pi Pico inst
    SSD1306_Init();
    ```
 
+### Funções
+
+O arquivo ``` SSD1306.h ``` contém instruções acerca da utilização das funções e seus respectivos parâmetros.
+
+1. **Figuras geométricas:**
+    ```c
+    void SSD1306_DrawLine(uint8_t *ssd, int X0, int Y0, int X1, int Y1, SSD1306_COLOR_t color);
+    void SSD1306_DrawRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color);
+    void SSD1306_DrawFilledRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color);
+    void SSD1306_DrawTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
+    void SSD1306_DrawFilledTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
+    void SSD1306_DrawCircle(uint8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color);
+    void SSD1306_DrawFilledCircle(int8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color);
+    void SSD1306_DrawArc(uint8_t *ssd, uint16_t x_center, uint16_t y_center, uint16_t radius, uint16_t start_angle, uint16_t end_angle, SSD1306_COLOR_t color);
+    ```
+
+2. **Textos:**
+   ```c
+   void SSD1306_SetChar(uint8_t *ssd, int16_t x, int16_t y, uint8_t character, FontDef_t* Font, SSD1306_COLOR_t color);
+   void SSD1306_SetString(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color);
+   void SSD1306_SetStringWrapped(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color);
+   ```
+3. **Atualização:**
+   ```c
+   void SSD1306_Render(uint8_t *ssd, struct RenderArea *area);
+   void SSD1306_Clear(uint8_t *ssd, struct RenderArea *area);
+   ```
+
 ---
    
 ## Exemplo
