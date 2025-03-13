@@ -7,22 +7,23 @@
 #include <stdint.h>
 #include "hardware/i2c.h"
 
-/* endereco I2C do display SSD1306 */
+/* Endereço I2C do display */
 #ifndef SSD1306_I2C_ADDRESS
 #define SSD1306_I2C_ADDRESS 0x3C
 //#define SSD1306_I2C_ADDRESS 0x7A
 #endif
 
-/* comprimento do display SSD1306 */
+/* Comprimento do display */
 #ifndef SSD1306_WIDTH
 #define SSD1306_WIDTH 128
 #endif
 
-/* altura do display */
+/* Altura do display */
 #ifndef SSD1306_HEIGHT
 #define SSD1306_HEIGHT 64
 #endif
 
+/* Endereços para configuração do display */
 #define SSD1306_Set_MemoryMode 0x20
 #define SSD1306_Set_ColumnAddress 0x21
 #define SSD1306_Set_PageAddress 0x22
@@ -55,13 +56,15 @@
 #define SSD1306_LEFT_HORIZONTAL_SCROLL               0x27
 #define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
 #define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL  0x2A
-#define SSD1306_DEACTIVATE_SCROLL                    0x2E // Stop scroll
-#define SSD1306_ACTIVATE_SCROLL                      0x2F // Start scroll
-#define SSD1306_SET_VERTICAL_SCROLL_AREA             0xA3 // Set scroll range
+#define SSD1306_DEACTIVATE_SCROLL                    0x2E 
+#define SSD1306_ACTIVATE_SCROLL                      0x2F 
+#define SSD1306_SET_VERTICAL_SCROLL_AREA             0xA3 
 
-#define SSD1306_NORMALDISPLAY       0xA6 // display em estado normal
-#define SSD1306_INVERTDISPLAY       0xA7 // inverte o estado de cada pixel
+#define SSD1306_NORMALDISPLAY       0xA6 
+#define SSD1306_INVERTDISPLAY       0xA7 
 
+/* - Estrutura utilizada para a área de renderização
+   - Deve ser inicializada no início do código */
 struct RenderArea {
     uint8_t StartColumn;
     uint8_t EndColumn;
@@ -70,6 +73,7 @@ struct RenderArea {
     int BufferLength;
 };
 
+/* Estrutura para as características do display */
 typedef struct {
     uint8_t Width, Height, Pages, Address;
     i2c_inst_t * i2c_port;
@@ -79,48 +83,91 @@ typedef struct {
     uint8_t port_buffer[2];
 } SSD1306_t;
 
-
+/* Estrutura para a seleção de cores do display (define se o pixel será aceso ou apagado) */
 typedef enum {
-    SSD1306_COLOR_BLACK = 0x00, /* cor preta para o pixel (apagado) */
-    SSD1306_COLOR_WHITE = 0x01 /* cor banca para o pixel (aceso) */
+    SSD1306_COLOR_BLACK = 0x00, // cor preta para apagado
+    SSD1306_COLOR_WHITE = 0x01 // cor branca para aceso
 } SSD1306_COLOR_t;
 
+/* - Função para cálculo do quanto do buffer será destinado a renderização 
+   - Utiliza como parâmetro a estrutura de área de renderização
+   - Deve ser utilizada ao iniciar o display           */
 void Calculate_RenderArea_BufferLength(struct RenderArea *area);
 
+/* - Função para enviar comandos ao display 
+   - Utiliza como parâmetro o comando que deseja ser passado */
 void SSD1306_SendCommand(uint8_t command);
 
+/* - Função para enviar uma lista de comandos ao display
+   - Utiliza como parâmetro o buffer e o número de comandos a serem passados */
 void SSD1306_SendCommand_List(uint8_t *ssd, int number);
 
+/* - Função que envia dados para o display 
+   - Utiliza como parâmetro o buffer e o seu respectivo comprimento */
 void SSD1306_SendBuffer(uint8_t ssd[], int buffer_length);
 
+/* - Função de inicialização do display */
 void SSD1306_Init();
 
+/* - Função para a renderização do display
+   - Utiliza como parâmetros o buffer e a estrutura de área de renderização
+   - Deve ser utilizada sempre que for desejado atualizar, ou seja, desenhar no display */
 void SSD1306_Render(uint8_t *ssd, struct RenderArea *area);
 
+/* - Função para controlar um pixel desejado
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas X e Y do display e a cor desejada (aceso/apagado) */
 void SSD1306_SetPixel(uint8_t *ssd, int X, int Y, SSD1306_COLOR_t color);
 
+/* - Função para desenhar uma linha
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas do ponto inicial X0 e Y0, do ponto final X1 e Y1 e a cor desejada (aceso/apagado) */
 void SSD1306_DrawLine(uint8_t *ssd, int X0, int Y0, int X1, int Y1, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um retângulo
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas do ponto inicial X e Y, o comprimento W, a altura H e a cor desejada (aceso/apagado) */
 void SSD1306_DrawRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um retângulo preenchido 
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas do ponto inicial X e Y, o comprimento W, a altura H e a cor desejada (aceso/apagado) */
 void SSD1306_DrawFilledRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um triângulo 
+   - Utiliza como parâmetros o buffer, cada vértice nas coordenadas cartesianas e a cor desejada (aceso/apagado) */
 void SSD1306_DrawTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um triângulo preenchido
+   - Utiliza como parâmetros o buffer, cada vértice nas coordenadas cartesianas e a cor desejada (aceso/apagado) */
 void SSD1306_DrawFilledTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um círculo
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas X e Y do centro, o raio R e a cor desejada (aceso/apagado) */
 void SSD1306_DrawCircle(uint8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um círculo preenchido
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas X e Y do centro, o raio R e a cor desejada (aceso/apagado) */
 void SSD1306_DrawFilledCircle(int8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um arco
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas do centro X e Y, o raio R, os ângulos de início e fim e a cor desejada (aceso/apagado) */
 void SSD1306_DrawArc(uint8_t *ssd, uint16_t x_center, uint16_t y_center, uint16_t radius, uint16_t start_angle, uint16_t end_angle, SSD1306_COLOR_t color);
 
+/* - Função para desenhar um caractere
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas em que se deseja desenhar, o caractere a ser desenhado, o tamanho da fonte de acordo com arquivo Fonts
+   e a cor desejada (aceso/apagado) */
 void SSD1306_SetChar(uint8_t *ssd, int16_t x, int16_t y, uint8_t character, FontDef_t* Font, SSD1306_COLOR_t color);
 
+/* - Função para desenhar uma string 
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas em que se deseja desenhar, a string a ser desenhada, o tamanho da fonte de acordo com o arquivo Fonts
+   e a cor desejada (aceso/apagado) */
 void SSD1306_SetString(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color);
 
+/* - Função para desenhar uma string com quebra de linha
+   - Utiliza como parâmetros o buffer, as coordenadas cartesianas em que se deseja desenhar, a string a ser desenhada, o tamanho da fonte de acordo com o arquivo Fonts
+   e a cor desejada (aceso/apagado)*/
 void SSD1306_SetStringWrapped(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color);
 
+/* - Função que limpa o display
+   - Utiliza como parâmetros o buffer e a estrutura da área de renderização
+   - Não é necessário utilizar a função SSD1306_Render após o seu uso */
 void SSD1306_Clear(uint8_t *ssd, struct RenderArea *area);
 
 #endif

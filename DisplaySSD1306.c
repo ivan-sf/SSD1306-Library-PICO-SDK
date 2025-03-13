@@ -13,27 +13,25 @@
 
 #define ABSOLUTE(x) ((x) > 0 ? (x) : (-x))
 
-// Buffer para armazenar os dados do display
-static uint8_t SSD1306_Buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
-
+/* Função para cálculo do quanto do buffer será destinado a renderização */
 void Calculate_RenderArea_BufferLength(struct RenderArea *area){
     area->BufferLength = (area->EndColumn - area->StartColumn + 1) * (area->EndPage - area->StartPage + 1);
 }
 
-// Função para enviar comandos ao display
+/* Função para enviar comandos ao display */
 void SSD1306_SendCommand(uint8_t command){
     uint8_t dt[2] = {0x80, command};
     i2c_write_blocking(SSD1306_I2C, SSD1306_I2C_ADDRESS, dt, 2, false);
 }
 
-// Função para enviar uma lista de comandos ao display
+/* Função para enviar uma lista de comandos ao display */
 void SSD1306_SendCommand_List(uint8_t *ssd, int number){
     for (int i = 0; i < number; i++){
         SSD1306_SendCommand(ssd[i]);
     }
 }
 
-// Função para enviar dados ao display
+/* Função para enviar dados ao display */
 void SSD1306_SendBuffer(uint8_t ssd[], int buffer_length){
     uint8_t *aux_buffer = malloc(buffer_length + 1);
 
@@ -45,6 +43,7 @@ void SSD1306_SendBuffer(uint8_t ssd[], int buffer_length){
     free(aux_buffer);
 }
 
+/* Função de inicialização do display */
 void SSD1306_Init(){
     uint8_t Commands[] = {SSD1306_Set_Display, SSD1306_Set_MemoryMode, 0x00, SSD1306_Set_Display_StartLine, SSD1306_Set_SegmentRemap | 0x01,
                           SSD1306_Set_MuxRatio, SSD1306_HEIGHT - 1, SSD1306_Set_CommonOutputDirection | 0x08, SSD1306_Set_Offset, 0x00,
@@ -55,6 +54,7 @@ void SSD1306_Init(){
     SSD1306_SendCommand_List(Commands, count_of(Commands));
 }
 
+/* Função para a renderização do display */
 void SSD1306_Render(uint8_t *ssd, struct RenderArea *area){
     uint8_t Commands[] = {SSD1306_Set_ColumnAddress, area->StartColumn, area->EndColumn,
                           SSD1306_Set_PageAddress, area->StartPage, area->EndPage};
@@ -63,20 +63,26 @@ void SSD1306_Render(uint8_t *ssd, struct RenderArea *area){
     SSD1306_SendBuffer(ssd, area->BufferLength);
 }
 
-void SSD1306_SetPixel(uint8_t *ssd, int X, int Y, SSD1306_COLOR_t color){
-    if (X >= SSD1306_WIDTH || Y >= SSD1306_HEIGHT){
-        return;
+/* Função para controlar um pixel desejado */
+void SSD1306_SetPixel(uint8_t *ssd, int X, int Y, SSD1306_COLOR_t color) {
+    assert(X >= 0 && X < SSD1306_WIDTH && Y >= 0 && Y < SSD1306_HEIGHT);
+
+    const int bytes_per_row = SSD1306_WIDTH;
+
+    int byte_idx = (Y / 8) * bytes_per_row + X;
+    uint8_t byte = ssd[byte_idx];
+
+    if (color) {
+        byte |= 1 << (Y % 8);
+    }
+    else {
+        byte &= ~(1 << (Y % 8));
     }
 
-    if (color == SSD1306_COLOR_WHITE){
-        SSD1306_Buffer[X + (Y/8) * SSD1306_WIDTH] |= 1 << (Y % 8);
-    }
-
-    else{
-        SSD1306_Buffer[X + (Y/8) * SSD1306_WIDTH] &= ~(1 << (Y % 8));
-    }
+    ssd[byte_idx] = byte;
 }
 
+/* Função que desenha uma linha, seguindo o algoritmo de Bresenham */ 
 void SSD1306_DrawLine(uint8_t *ssd, int X0, int Y0, int X1, int Y1, SSD1306_COLOR_t color){
     int16_t dx, dy, sx, sy, err, e2, i, tmp;
 
@@ -132,12 +138,11 @@ void SSD1306_DrawLine(uint8_t *ssd, int X0, int Y0, int X1, int Y1, SSD1306_COLO
 			X0 = tmp;
 		}
 		
-		/* Horizontal line */
+		// Linha horizontal
 		for (i = X0; i <= X1; i++) {
 			SSD1306_SetPixel(ssd, i, Y0, color);
 		}
 		
-		/* Return from function */
 		return;
 	}
 
@@ -162,6 +167,7 @@ void SSD1306_DrawLine(uint8_t *ssd, int X0, int Y0, int X1, int Y1, SSD1306_COLO
     }
 }
 
+/* Função para desenhar um retângulo */
 void SSD1306_DrawRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color){
     if (x >= SSD1306_WIDTH || y >= SSD1306_HEIGHT){
         return;
@@ -181,6 +187,7 @@ void SSD1306_DrawRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uin
     SSD1306_DrawLine(ssd, x + w, y, x + w, y + h, color);
 }
 
+/* Função para desenhar um retângulo preenchido */
 void SSD1306_DrawFilledRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color){
     uint8_t i;
 
@@ -201,12 +208,14 @@ void SSD1306_DrawFilledRectangle(uint8_t *ssd, uint16_t x, uint16_t y, uint16_t 
     }
 }
 
+/* Função para desenhar um triângulo */
 void SSD1306_DrawTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color){
     SSD1306_DrawLine(ssd, x1, y1, x2, y2, color);
     SSD1306_DrawLine(ssd, x3, y3, x2, y2, color);
     SSD1306_DrawLine(ssd, x3, y3, x1, y1, color);
 }
 
+/* Função para desenhar um triângulo preenchido */
 void SSD1306_DrawFilledTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color) {
 	int16_t deltax = 0, deltay = 0, x = 0, y = 0, xinc1 = 0, xinc2 = 0, 
 	yinc1 = 0, yinc2 = 0, den = 0, num = 0, numadd = 0, numpixels = 0, 
@@ -263,6 +272,7 @@ void SSD1306_DrawFilledTriangle(uint8_t *ssd, uint16_t x1, uint16_t y1, uint16_t
 	}
 }
 
+/* Função para desenhar um círculo */
 void SSD1306_DrawCircle(uint8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color){
     int16_t f = 1 - radius;
     int16_t ddF_x = 1;
@@ -298,6 +308,7 @@ void SSD1306_DrawCircle(uint8_t *ssd, int16_t x_center, int16_t y_center, int16_
     }
 }
 
+/* Função para desenhar um círculo preenchido */
 void SSD1306_DrawFilledCircle(int8_t *ssd, int16_t x_center, int16_t y_center, int16_t radius, SSD1306_COLOR_t color){
     int16_t f = 1 - radius;
     int16_t ddF_x = 1;
@@ -330,6 +341,7 @@ void SSD1306_DrawFilledCircle(int8_t *ssd, int16_t x_center, int16_t y_center, i
     }
 }
 
+/* Função para desenhar um arco */
 void SSD1306_DrawArc(uint8_t *ssd, uint16_t x_center, uint16_t y_center, uint16_t radius, uint16_t start_angle, uint16_t end_angle, SSD1306_COLOR_t color){
     // Garante que os ângulos estão no intervalo correto
     if (start_angle > end_angle) {
@@ -353,15 +365,16 @@ void SSD1306_DrawArc(uint8_t *ssd, uint16_t x_center, uint16_t y_center, uint16_
     }
 }
 
+/* Função para desenhar um caractere */
 void SSD1306_SetChar(uint8_t *ssd, int16_t x, int16_t y, uint8_t character, FontDef_t* Font, SSD1306_COLOR_t color) {
     uint32_t i, b, j;
     if (x > SSD1306_WIDTH - Font->FontWidth || y > SSD1306_HEIGHT - Font->FontHeight) {
         return; // Evita escrever fora dos limites da tela
     }
 
-    character -= 32; // Ajusta o índice do caractere (tabela começa no ASCII 32 - ' ')
+    character -= 32; // Ajusta o índice do caractere
 
-	/* Go through font */
+	// Percorre o array dos caracteres
 	for (i = 0; i < Font->FontHeight; i++) {
 		b = Font->data[(character) * Font->FontHeight + i];
 		for (j = 0; j < Font->FontWidth; j++) {
@@ -374,6 +387,7 @@ void SSD1306_SetChar(uint8_t *ssd, int16_t x, int16_t y, uint8_t character, Font
 	}
 }
 
+/* Função para desenhar uma string */
 void SSD1306_SetString(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color) {
     while (*str) {
         // Evita imprimir fora da tela na largura
@@ -398,6 +412,7 @@ void SSD1306_SetString(uint8_t *ssd, int16_t x, int16_t y, const char *str, Font
     }
 }
 
+/* Função para desenhar uma string com quebra de linha */
 void SSD1306_SetStringWrapped(uint8_t *ssd, int16_t x, int16_t y, const char *str, FontDef_t* Font, SSD1306_COLOR_t color) {
     while (*str) {
         if (*str == '\n') {  
@@ -421,56 +436,8 @@ void SSD1306_SetStringWrapped(uint8_t *ssd, int16_t x, int16_t y, const char *st
     }
 }
 
+/* Função para limpar o display */
 void SSD1306_Clear(uint8_t *ssd, struct RenderArea *area){
     memset(ssd, 0, SSD1306_BufferLength);
     SSD1306_Render(ssd, area);
-}
-
-struct RenderArea FrameArea = {
-    .StartColumn = 0,
-    .EndColumn = SSD1306_WIDTH - 1,
-    .StartPage = 0,
-    .EndPage = SSD1306_NumberOfPages - 1
-};
-
-int main(){
-    stdio_init_all();
-
-    i2c_init(SSD1306_I2C, 400 * 1000);
-    gpio_set_function(14, GPIO_FUNC_I2C);
-    gpio_set_function(15, GPIO_FUNC_I2C);
-    gpio_pull_up(14);
-    gpio_pull_up(15);
-
-    Calculate_RenderArea_BufferLength(&FrameArea);
-
-    SSD1306_Init();
-
-    //SSD1306_DrawLine(SSD1306_Buffer, 10, 50, 100, 50, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawRectangle(SSD1306_Buffer, 10, 10, 90, 30, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawFilledRectangle(SSD1306_Buffer, 10, 10, 90, 30, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawTriangle(SSD1306_Buffer, 64, 30, 100, 50, 64, 50, SSD1306_COLOR_WHITE);
-
-    SSD1306_DrawFilledTriangle(SSD1306_Buffer, 10, 5, 90, 50, 10, 50, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawCircle(SSD1306_Buffer, 64, 32, 20, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawFilledCircle(SSD1306_Buffer, 10, 10, 5, SSD1306_COLOR_WHITE);
-
-    //SSD1306_DrawArc(SSD1306_Buffer, 64, 32, 20, 180, 0, SSD1306_COLOR_WHITE);
-
-    //SSD1306_SetChar(SSD1306_Buffer, 120, 32, '&', &Font_7x10, SSD1306_COLOR_WHITE);
-
-    //SSD1306_SetString(SSD1306_Buffer, 0, 0, "WXYZ", &Font_16x26, SSD1306_COLOR_WHITE);
-
-    //SSD1306_SetStringWrapped(SSD1306_Buffer, 0, 0, "ABCD\nWXYZ", &Font_7x10, SSD1306_COLOR_WHITE);
-
-    SSD1306_Render(SSD1306_Buffer, &FrameArea);
-
-    while(1){
-
-    }
 }
