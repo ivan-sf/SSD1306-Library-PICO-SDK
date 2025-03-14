@@ -441,3 +441,24 @@ void SSD1306_Clear(uint8_t *ssd, struct RenderArea *area){
     memset(ssd, 0, SSD1306_BufferLength);
     SSD1306_Render(ssd, area);
 }
+
+void SSD1306_Invert(bool invert){
+    if(invert){
+        SSD1306_SendCommand(SSD1306_INVERTDISPLAY);
+    }
+    else{
+        SSD1306_SendCommand(SSD1306_NORMALDISPLAY);
+    }
+}
+
+void SSD1306_ON(){
+    uint8_t Commands[] = {0x8D, 0x14, 0xAF};
+
+    SSD1306_SendCommand_List(Commands, sizeof(Commands));
+}
+
+void SSD1306_OFF(){
+    uint8_t Commands[] = {0x8D, 0x10, 0xAE};
+
+    SSD1306_SendCommand_List(Commands, sizeof(Commands));
+}

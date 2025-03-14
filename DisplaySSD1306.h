@@ -66,21 +66,21 @@
 /* - Estrutura utilizada para a área de renderização
    - Deve ser inicializada no início do código */
 struct RenderArea {
-    uint8_t StartColumn;
-    uint8_t EndColumn;
-    uint8_t StartPage;
-    uint8_t EndPage;
-    int BufferLength;
+   uint8_t StartColumn;
+   uint8_t EndColumn;
+   uint8_t StartPage;
+   uint8_t EndPage;
+   int BufferLength;
 };
 
 /* Estrutura para as características do display */
 typedef struct {
-    uint8_t Width, Height, Pages, Address;
-    i2c_inst_t * i2c_port;
-    bool external_vcc;
-    uint8_t *ram_buffer;
-    size_t bufsize;
-    uint8_t port_buffer[2];
+   uint8_t Width, Height, Pages, Address;
+   i2c_inst_t * i2c_port;
+   bool external_vcc;
+   uint8_t *ram_buffer;
+   size_t bufsize;
+   uint8_t port_buffer[2];
 } SSD1306_t;
 
 /* Estrutura para a seleção de cores do display (define se o pixel será aceso ou apagado) */
@@ -169,5 +169,11 @@ void SSD1306_SetStringWrapped(uint8_t *ssd, int16_t x, int16_t y, const char *st
    - Utiliza como parâmetros o buffer e a estrutura da área de renderização
    - Não é necessário utilizar a função SSD1306_Render após o seu uso */
 void SSD1306_Clear(uint8_t *ssd, struct RenderArea *area);
+
+void SSD1306_Invert(bool invert);
+
+void SSD1306_ON();
+
+void SSD1306_OFF();
 
 #endif

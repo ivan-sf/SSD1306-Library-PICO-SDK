@@ -20,7 +20,7 @@ struct RenderArea FrameArea = {
     .EndPage = SSD1306_NumberOfPages - 1
 };
 
-uint8_t ssd[SSD1306_BufferLength]; // declaracao de buffer
+uint8_t ssd[SSD1306_BufferLength];
 
 int main(){
     stdio_init_all();
@@ -39,7 +39,7 @@ int main(){
 
     //SSD1306_DrawRectangle(ssd, 10, 10, 90, 30, SSD1306_COLOR_WHITE);
 
-    //SSD1306_DrawFilledRectangle(ssd, 10, 10, 90, 30, SSD1306_COLOR_WHITE);
+    SSD1306_DrawFilledRectangle(ssd, 10, 10, 90, 30, SSD1306_COLOR_WHITE);
 
     //SSD1306_DrawTriangle(ssd, 64, 30, 100, 50, 64, 50, SSD1306_COLOR_WHITE);
 
@@ -83,7 +83,7 @@ int main(){
 
     SSD1306_Clear(ssd, &FrameArea);*/
 
-    SSD1306_SetChar(ssd, 0, 0, 'A', &Font_7x10, SSD1306_COLOR_WHITE);
+    /*SSD1306_SetChar(ssd, 0, 0, 'A', &Font_7x10, SSD1306_COLOR_WHITE);
 
     SSD1306_Render(ssd, &FrameArea);
 
@@ -101,7 +101,25 @@ int main(){
 
     sleep_ms(3000);
 
+    SSD1306_Clear(ssd, &FrameArea);*/
+
+    SSD1306_Render(ssd, &FrameArea);
+
+    sleep_ms(3000);
+
+    SSD1306_Invert(true);
+
+    sleep_ms(3000);
+
     SSD1306_Clear(ssd, &FrameArea);
+
+    sleep_ms(3000);
+
+    SSD1306_OFF();
+
+    sleep_ms(3000);
+
+    SSD1306_ON();
 
     while(1){
 
